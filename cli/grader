@@ -1,0 +1,279 @@
+#!/usr/bin/env python3
+"""
+Unified CLI for the Automated Grading System
+Provides a single entry point for all grading workflow operations
+"""
+
+import os
+import sys
+import argparse
+import subprocess
+from pathlib import Path
+
+# Add the core directory to the Python path
+SCRIPT_DIR = Path(__file__).resolve().parent
+CORE_DIR = SCRIPT_DIR / "core"
+PREPROCESSING_DIR = SCRIPT_DIR / "preprocessing"
+
+sys.path.insert(0, str(CORE_DIR))
+
+def run_preprocessing(args):
+    """Run the preprocessing pipeline"""
+    print("🔄 Starting preprocessing pipeline...")
+    
+    # Step 1: Consolidate assignments
+    if args.consolidate or args.all:
+        print("\n1️⃣ Consolidating assignment files...")
+        consolidate_script = PREPROCESSING_DIR / "consolidate_assignments.py"
+        cmd = [sys.executable, str(consolidate_script), args.folder]
+        subprocess.run(cmd, check=True)
+    
+    # Step 2: Clean zip files (if roster provided)
+    if args.clean and args.roster:
+        print("\n2️⃣ Cleaning ZIP files based on roster...")
+        clean_script = PREPROCESSING_DIR / "clean_zip_files.py"
+        cmd = [sys.executable, str(clean_script), args.folder, args.roster]
+        subprocess.run(cmd, check=True)
+    elif args.clean:
+        print("⚠️ Warning: --clean requires --roster file. Skipping clean step.")
+    
+    print("\n✅ Preprocessing completed!")
+
+def run_github_scan(args):
+    """Run GitHub repository scanning"""
+    print("🔍 Starting GitHub repository scan...")
+    
+    github_script = CORE_DIR / "github_scanner.py"
+    cmd = [sys.executable, str(github_script)]
+    
+    # Set environment variable for submissions folder if different from default
+    env = os.environ.copy()
+    if args.folder != "submissions/":
+        # GitHub scanner expects submissions_folder as argument - modify as needed
+        print(f"Note: GitHub scanner uses hardcoded 'submissions/' folder.")
+        print(f"You specified: {args.folder}")
+    
+    subprocess.run(cmd, check=True, env=env)
+    print("\n✅ GitHub scan completed!")
+
+def run_grading(args):
+    """Run the automated grading"""
+    print("🚀 Starting automated grading...")
+    
+    from auto_grader import main as grader_main
+    
+    # Build arguments for the grader
+    grader_args = [
+        args.folder,
+        "--assignment", args.assignment
+    ]
+    
+    if args.dry_run:
+        grader_args.append("--dry-run")
+    
+    if args.github:
+        grader_args.append("--github")
+    elif args.no_github:
+        grader_args.append("--no-github")
+    
+    if args.mapping:
+        grader_args.extend(["--mapping", args.mapping])
+    
+    if args.output:
+        grader_args.extend(["--output", args.output])
+    
+    if args.assignments_dir:
+        grader_args.extend(["--assignments-dir", args.assignments_dir])
+    
+    if args.templates_dir:
+        grader_args.extend(["--templates-dir", args.templates_dir])
+    
+    # Replace sys.argv for the grader main function
+    original_argv = sys.argv
+    sys.argv = ["auto_grader.py"] + grader_args
+    
+    try:
+        grader_main()
+    finally:
+        sys.argv = original_argv
+    
+    print("\n✅ Grading completed!")
+
+def run_complete_workflow(args):
+    """Run the complete workflow: preprocess -> github -> grade"""
+    print("🎯 Starting complete grading workflow...")
+    print("=" * 60)
+    
+    # Step 1: Preprocessing
+    if not args.skip_preprocess:
+        args.consolidate = True
+        args.clean = True
+        run_preprocessing(args)
+        print("\n" + "=" * 60)
+    
+    # Step 2: GitHub scanning (if enabled)
+    if not args.no_github and not args.skip_github:
+        run_github_scan(args)
+        print("\n" + "=" * 60)
+    
+    # Step 3: Grading
+    run_grading(args)
+    
+    print("\n🎉 Complete workflow finished!")
+
+def list_assignments(args):
+    """List available assignments"""
+    from config_loader import ConfigLoader
+    
+    config_loader = ConfigLoader(args.assignments_dir)
+    assignments = config_loader.list_available_assignments()
+    
+    if assignments:
+        print("Available assignments:")
+        for assignment in assignments:
+            try:
+                config = config_loader.load_assignment_config(assignment)
+                print(f"  📋 {assignment}: {config['assignment']['name']} ({config['assignment']['type']})")
+                print(f"      {config['assignment']['description']}")
+                print(f"      Total points: {config['assignment']['total_points']}")
+                github_enabled = config.get('github_integration', {}).get('enabled', False)
+                print(f"      GitHub integration: {'✅ Enabled' if github_enabled else '❌ Disabled'}")
+                print()
+            except Exception as e:
+                print(f"  ❌ {assignment}: ERROR - {str(e)}")
+    else:
+        print(f"No assignments found in {args.assignments_dir}/")
+
+def main():
+    """Main CLI entry point"""
+    parser = argparse.ArgumentParser(
+        description="Unified Automated Grading System CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Commands:
+  preprocess       Run preprocessing pipeline (consolidate + clean)
+  github-scan      Scan for GitHub repositories
+  grade           Run automated grading
+  process-all     Run complete workflow (preprocess + github + grade)
+  list            List available assignments
+
+Examples:
+  # List available assignments
+  grader list
+  
+  # Complete workflow for WeatherWise assignment
+  grader process-all submissions/ --assignment weatherwise --roster students.csv
+  
+  # Just preprocessing
+  grader preprocess submissions/ --roster students.csv
+  
+  # Dry run grading only
+  grader grade submissions/ --assignment weatherwise --dry-run
+  
+  # Grade without GitHub integration
+  grader grade submissions/ --assignment weatherwise --no-github
+        """
+    )
+    
+    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    
+    # Common arguments
+    def add_common_args(parser):
+        parser.add_argument('folder', nargs='?', default='submissions/', 
+                          help='Path to submissions folder (default: submissions/)')
+        parser.add_argument('--assignments-dir', default='assignments',
+                          help='Path to assignments directory (default: assignments)')
+        parser.add_argument('--templates-dir', default='templates',
+                          help='Path to templates directory (default: templates)')
+    
+    # Preprocess command
+    preprocess_parser = subparsers.add_parser('preprocess', help='Run preprocessing pipeline')
+    add_common_args(preprocess_parser)
+    preprocess_parser.add_argument('--roster', help='Path to student roster CSV file')
+    preprocess_parser.add_argument('--consolidate', action='store_true', default=True,
+                                 help='Consolidate assignment files (default: True)')
+    preprocess_parser.add_argument('--clean', action='store_true', default=True,
+                                 help='Clean based on roster (default: True, requires --roster)')
+    preprocess_parser.add_argument('--all', action='store_true',
+                                 help='Run all preprocessing steps')
+    
+    # GitHub scan command
+    github_parser = subparsers.add_parser('github-scan', help='Scan for GitHub repositories')
+    add_common_args(github_parser)
+    
+    # Grade command
+    grade_parser = subparsers.add_parser('grade', help='Run automated grading')
+    add_common_args(grade_parser)
+    grade_parser.add_argument('--assignment', required=True,
+                            help='Assignment name (must exist in assignments/ folder)')
+    grade_parser.add_argument('--dry-run', action='store_true',
+                            help='Estimate costs without making API calls')
+    
+    github_group = grade_parser.add_mutually_exclusive_group()
+    github_group.add_argument('--github', action='store_true',
+                            help='Enable GitHub integration')
+    github_group.add_argument('--no-github', action='store_true',
+                            help='Disable GitHub integration')
+    
+    grade_parser.add_argument('--mapping', default='student_github_mapping.json',
+                            help='GitHub mapping file (default: student_github_mapping.json)')
+    grade_parser.add_argument('--output', help='Output filename for results')
+    
+    # Process all command
+    process_parser = subparsers.add_parser('process-all', help='Run complete workflow')
+    add_common_args(process_parser)
+    process_parser.add_argument('--assignment', required=True,
+                              help='Assignment name (must exist in assignments/ folder)')
+    process_parser.add_argument('--roster', help='Path to student roster CSV file')
+    process_parser.add_argument('--dry-run', action='store_true',
+                              help='Estimate costs without making API calls')
+    process_parser.add_argument('--no-github', action='store_true',
+                              help='Disable GitHub integration entirely')
+    process_parser.add_argument('--skip-preprocess', action='store_true',
+                              help='Skip preprocessing steps')
+    process_parser.add_argument('--skip-github', action='store_true',
+                              help='Skip GitHub scanning')
+    process_parser.add_argument('--mapping', default='student_github_mapping.json',
+                              help='GitHub mapping file (default: student_github_mapping.json)')
+    process_parser.add_argument('--output', help='Output filename for results')
+    
+    # List command
+    list_parser = subparsers.add_parser('list', help='List available assignments')
+    list_parser.add_argument('--assignments-dir', default='assignments',
+                           help='Path to assignments directory (default: assignments)')
+    
+    args = parser.parse_args()
+    
+    if not args.command:
+        parser.print_help()
+        return
+    
+    # Change to the script directory to ensure relative paths work
+    os.chdir(SCRIPT_DIR)
+    
+    try:
+        if args.command == 'preprocess':
+            run_preprocessing(args)
+        elif args.command == 'github-scan':
+            run_github_scan(args)
+        elif args.command == 'grade':
+            run_grading(args)
+        elif args.command == 'process-all':
+            run_complete_workflow(args)
+        elif args.command == 'list':
+            list_assignments(args)
+        else:
+            print(f"Unknown command: {args.command}")
+            parser.print_help()
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Error running command: {e}")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\n❌ Interrupted by user")
+        sys.exit(1)
+    except Exception as e:
+        print(f"❌ Unexpected error: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

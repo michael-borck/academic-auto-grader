@@ -1,0 +1,13 @@
+### Required Functions Analysis:
+{% for func in assignment.required_functions %}
+{% if func.name in functions_found %}
+
+✅ {{ func.name }}: IMPLEMENTED
+```python
+{{ function_implementations[func.name][:500] }}...
+```
+{% else %}
+
+❌ {{ func.name }}: NOT FOUND
+{% endif %}
+{% endfor %}

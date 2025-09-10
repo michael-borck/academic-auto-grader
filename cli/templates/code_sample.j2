@@ -1,0 +1,12 @@
+{% if code_cells %}
+### Code Sample (first substantial cell):
+{% for cell in code_cells %}
+{% set cell_code = cell.code if cell is mapping else cell | string %}
+{% if cell_code | length > 50 %}
+```python
+{{ cell_code[:400] }}...
+```
+{% break %}
+{% endif %}
+{% endfor %}
+{% endif %}

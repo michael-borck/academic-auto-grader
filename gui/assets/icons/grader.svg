@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="paperGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f8fafc;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="checkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#16a34a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="128" cy="128" r="120" fill="url(#bgGradient)" filter="url(#shadow)"/>
+  
+  <!-- Document/Paper -->
+  <rect x="70" y="60" width="100" height="130" rx="8" ry="8" fill="url(#paperGradient)" stroke="#e2e8f0" stroke-width="1"/>
+  
+  <!-- Document lines -->
+  <line x1="85" y1="85" x2="145" y2="85" stroke="#94a3b8" stroke-width="2" opacity="0.7"/>
+  <line x1="85" y1="100" x2="155" y2="100" stroke="#94a3b8" stroke-width="2" opacity="0.7"/>
+  <line x1="85" y1="115" x2="140" y2="115" stroke="#94a3b8" stroke-width="2" opacity="0.7"/>
+  <line x1="85" y1="130" x2="150" y2="130" stroke="#94a3b8" stroke-width="2" opacity="0.7"/>
+  <line x1="85" y1="145" x2="135" y2="145" stroke="#94a3b8" stroke-width="2" opacity="0.7"/>
+  
+  <!-- Check mark circle -->
+  <circle cx="155" cy="140" r="25" fill="url(#checkGradient)" filter="url(#shadow)"/>
+  
+  <!-- Check mark -->
+  <path d="M 145 140 L 152 147 L 165 132" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  
+  <!-- Grade "A+" text -->
+  <text x="128" y="210" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#ffffff">A+</text>
+  
+  <!-- Subtle AI/automation indicator -->
+  <circle cx="90" cy="75" r="3" fill="#fbbf24" opacity="0.8">
+    <animate attributeName="opacity" values="0.8;0.4;0.8" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="98" cy="75" r="2" fill="#f59e0b" opacity="0.6">
+    <animate attributeName="opacity" values="0.6;0.3;0.6" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="105" cy="75" r="2.5" fill="#fbbf24" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2s" begin="1s" repeatCount="indefinite"/>
+  </circle>
+</svg>

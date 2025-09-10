@@ -1,0 +1,72 @@
+version: 1
+
+AppDir:
+  path: ./AppDir
+
+  app_info:
+    id: com.academicautograder.app
+    name: Academic Auto Grader
+    icon: academic-auto-grader
+    version: 1.0.0
+    exec: usr/bin/AcademicAutoGrader
+    exec_args: $@
+
+  apt:
+    arch: amd64
+    sources:
+      - sourceline: 'deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse'
+        key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x871920D1991BC93C'
+
+    include:
+      - python3
+      - python3-pip
+      - python3-tk
+      - libgtk-3-0
+      - libgdk-pixbuf2.0-0
+      - libcairo-gobject2
+      - libpango-1.0-0
+      - libatk1.0-0
+      - libcairo-gobject2
+      - libgdk-pixbuf2.0-0
+      - libglib2.0-0
+
+  files:
+    exclude:
+      - usr/share/man
+      - usr/share/doc/*/README.*
+      - usr/share/doc/*/changelog.*
+      - usr/share/doc/*/NEWS.*
+      - usr/share/doc/*/TODO.*
+
+  runtime:
+    env:
+      PYTHONPATH: '${APPDIR}/usr/lib/python3/dist-packages:${APPDIR}/usr/lib/python3.8/site-packages:${PYTHONPATH}'
+      PYTHONHOME: '${APPDIR}/usr'
+      PATH: '${APPDIR}/usr/bin:${PATH}'
+
+  test:
+    fedora:
+      image: appimagecrafters/tests-env:fedora-30
+      command: ./AppRun --version
+      use_host_x: True
+    debian:
+      image: appimagecrafters/tests-env:debian-stable
+      command: ./AppRun --version
+      use_host_x: True
+    arch:
+      image: appimagecrafters/tests-env:archlinux-latest
+      command: ./AppRun --version
+      use_host_x: True
+    centos:
+      image: appimagecrafters/tests-env:centos-7
+      command: ./AppRun --version
+      use_host_x: True
+    ubuntu:
+      image: appimagecrafters/tests-env:ubuntu-xenial
+      command: ./AppRun --version
+      use_host_x: True
+
+AppImage:
+  update-information: None
+  sign-key: None
+  arch: x86_64

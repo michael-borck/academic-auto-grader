@@ -1,0 +1,18 @@
+# GUI-specific dependencies
+# These are included in main requirements.txt but separated here for clarity
+
+# GUI Framework
+flet>=0.21.0
+
+# Packaging and distribution
+pyinstaller>=6.0.0
+auto-py-to-exe>=2.4.0  # Optional: GUI for PyInstaller
+
+# Secure credential storage
+keyring>=24.0.0
+
+# Enhanced file handling
+send2trash>=1.8.0
+
+# Development tools (optional)
+# flet-dev>=0.21.0  # For development features

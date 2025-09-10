@@ -1,0 +1,13 @@
+### AI Conversation Documentation:
+{% if conversation_files %}
+Number of conversation files: {{ conversation_files | length }}
+{% for conv in conversation_files[:3] %}
+
+**{{ conv.filename }}** (first 300 chars):
+```
+{{ conv.content[:300] }}...
+```
+{% endfor %}
+{% else %}
+❌ No conversation files found
+{% endif %}

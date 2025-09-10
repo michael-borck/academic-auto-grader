@@ -1,0 +1,84 @@
+assignment:
+  name: "WeatherWise"
+  description: "Intelligent Weather Analysis & Advisory System"
+  type: "python_application"
+  total_points: 100
+
+context:
+  requirements:
+    - "Weather data retrieval and display"
+    - "Natural language interface for weather queries"
+    - "At least 2 data visualizations"
+    - "Modular design with specific functions"
+    - "Documentation of AI interactions (intentional prompting)"
+    - "User interface (console or widgets)"
+  
+  required_functions:
+    - name: "get_weather_data"
+      signature: "get_weather_data(location, forecast_days=5)"
+      description: "Retrieve weather data from API"
+    - name: "parse_weather_question"
+      signature: "parse_weather_question(question)"
+      description: "Parse natural language weather questions"
+    - name: "generate_weather_response"
+      signature: "generate_weather_response(data, question)"
+      description: "Generate appropriate weather response"
+    - name: "create_temperature_visualisation"
+      signature: "create_temperature_visualisation(data)"
+      description: "Create temperature visualization"
+    - name: "create_precipitation_visualisation"
+      signature: "create_precipitation_visualisation(data)"
+      description: "Create precipitation visualization"
+  
+  file_expectations:
+    notebook: required
+    conversation_files: required
+    readme: optional
+    github: optional
+  
+  additional_context:
+    - "Core features work; required functions implemented"
+    - "Modular design with specific functions"
+    - "Comprehensive conversation documentation showing problem-solving journey"
+
+rubric:
+  functionality:
+    weight: 15
+    max_score: 15
+    criteria: "Application works as expected; core functions implemented correctly"
+  
+  code_quality:
+    weight: 10
+    max_score: 10
+    criteria: "Well-structured, readable code with proper documentation"
+  
+  notebook_organisation:
+    weight: 10
+    max_score: 10
+    criteria: "Logical cell-based structure; clear section organisation"
+  
+  user_experience:
+    weight: 10
+    max_score: 10
+    criteria: "Interface is intuitive and information is clearly presented"
+  
+  intentional_prompting:
+    weight: 30
+    max_score: 30
+    criteria: "Documentation of AI interactions; evidence of strategic prompting techniques"
+  
+  ai_conversation_quality:
+    weight: 15
+    max_score: 15
+    criteria: "Comprehensive conversation documentation showing problem-solving journey"
+  
+  technical_implementation:
+    weight: 10
+    max_score: 10
+    criteria: "Appropriate use of libraries and efficient implementation"
+
+github_integration:
+  enabled: true
+  minimum_commits: 15
+  repository_analysis: true
+  readme_comparison: true

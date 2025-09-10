@@ -1,0 +1,34 @@
+{% if github_integration.enabled %}
+### GitHub Repository Analysis:
+{% if github_info.accessible %}
+✅ **GitHub Repository Accessible**: {{ github_info.url }}
+- Repository: {{ github_info.repository_info.name | default('N/A') }}
+- Description: {{ github_info.repository_info.description | default('No description') }}
+- Total Commits: {{ github_info.commit_analysis.total_commits | default(0) }} {{ '✅' if github_info.commit_analysis.total_commits >= github_integration.minimum_commits else '❌ (Required: ' + github_integration.minimum_commits|string + '+)' }}
+- Last Updated: {{ github_info.repository_info.updated_at | default('Unknown') }}
+
+**Recent Commit Messages** (shows development progression):
+{% for msg in github_info.commit_analysis.commit_messages[:10] %}
+{{ loop.index }}. {{ msg[:100] }}...
+{% endfor %}
+
+**Repository Structure**:
+- Files: {{ github_info.repository_structure.files[:10] | join(', ') }}
+- Folders: {{ github_info.repository_structure.folders | join(', ') }}
+
+{% if github_info.github_readme %}
+**GitHub README** (first 300 chars):
+```
+{{ github_info.github_readme[:300] }}...
+```
+{% endif %}
+
+{% elif github_info.url %}
+❌ **GitHub Repository Not Accessible**: {{ github_info.url }}
+Error: {{ github_info.error | default('Unknown error') }}
+{% else %}
+❌ **No GitHub Repository Found** in mapping file
+{% endif %}
+{% else %}
+ℹ️  **GitHub Integration Disabled** - Repository analysis not performed
+{% endif %}

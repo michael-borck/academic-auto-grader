@@ -1,0 +1,14 @@
+### README Content:
+{% if github_integration.enabled and github_info.github_readme %}
+**README Content (from GitHub, first 300 chars):**
+```
+{{ github_info.github_readme[:300] }}...
+```
+{% elif readme_content %}
+**README Content (from ZIP, first 300 chars):**
+```
+{{ readme_content[:300] }}...
+```
+{% else %}
+❌ No README found in submission{% if github_integration.enabled %} or GitHub{% endif %}
+{% endif %}

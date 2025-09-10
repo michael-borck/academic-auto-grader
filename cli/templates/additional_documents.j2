@@ -1,0 +1,9 @@
+{% if additional_documents %}
+### Additional Documents Found:
+{% for doc in additional_documents[:5] %}
+- **{{ doc.filename }}** ({{ doc.type | upper }}): {{ doc.content | length }} characters
+{% if doc.content | length > 100 %}
+  Preview: {{ doc.content[:150] }}...
+{% endif %}
+{% endfor %}
+{% endif %}

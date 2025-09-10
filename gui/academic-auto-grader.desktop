@@ -1,0 +1,19 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Academic Auto Grader
+Comment=Automated Assignment Grading with AI
+GenericName=Auto Grader
+Keywords=education;grading;ai;assignments;automation;
+Exec=AcademicAutoGrader
+Icon=academic-auto-grader
+Terminal=false
+StartupNotify=true
+Categories=Education;Office;Development;
+MimeType=text/x-python;application/x-python-code;text/plain;
+StartupWMClass=AcademicAutoGrader
+
+# Additional metadata
+X-AppStream-Ignore=false
+X-GNOME-UsesNotifications=true
+X-KDE-StartupNotify=true
